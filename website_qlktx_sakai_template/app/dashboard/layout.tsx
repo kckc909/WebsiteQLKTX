@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     robots: { index: false, follow: false },
     viewport: { initialScale: 1, width: 'device-width' },
     icons: {
-        icon: '/favicon.ico'
+        icon: '/custom/logo.png'
     }
 };
 
@@ -20,3 +20,4 @@ export default function AppLayout({ children }: AppLayoutProps) {
         <LayoutDashboard>{children}</LayoutDashboard>
     )
 }
+

@@ -15,9 +15,10 @@ import { api_tb_dang_ky_phong_add, api_tb_dang_ky_phong_deleteMany, api_tb_dang_
 import ChonPhong from '@components/ChonPhong';
 import { api_tb_phong_getAll } from 'app/api/dashboard/api_tb_phong';
 import { join } from 'path';
-import { api_tb_sinh_vien_add, api_tb_sinh_vien_search } from 'app/api/dashboard/api_tb_sinh_vien';
+import { api_tb_sinh_vien_add, api_tb_sinh_vien_CheckByMSV, api_tb_sinh_vien_search } from 'app/api/dashboard/api_tb_sinh_vien';
 import { Checkbox } from 'primereact/checkbox';
 import { InputNumber } from 'primereact/inputnumber';
+import { api_tb_trong_phong_add } from 'app/api/dashboard/api_tb_trong_phong';
 
 
 // hiển thị dnah sách đăng ký phòng
@@ -35,7 +36,7 @@ const QuanLyDangKyPhong = () => {
         id_tb_dang_ky_phong: 0,
         id_tb_phong: 0,
         trang_thai: 'cho',
-        gioi_tinh: '1',
+        gioi_tinh: '',
     } as tb_dang_ky_phong;
     const newSV = {
 
@@ -143,7 +144,7 @@ const QuanLyDangKyPhong = () => {
             newErrors.email = 'Email không hợp lệ.';
         }
 
-        if (!data.gioi_tinh || data.gioi_tinh.trim() !== '1' || data.gioi_tinh.trim() !== '0') {
+        if (!data.gioi_tinh || (data.gioi_tinh.trim() !== '1' && data.gioi_tinh.trim() !== '0')) {
             newErrors.gioi_tinh = 'Vui lòng chọn giới tính'
         }
         if (Object.keys(newErrors).length > 0) {
@@ -167,34 +168,64 @@ const QuanLyDangKyPhong = () => {
         }
     }
 
-    const getSinhVienByMaSinhVien = () => {
-        // check 
-    }
+    const handleCreate = async (newDangKyPhong: tb_dang_ky_phong) => {
+        try {
 
-    const handleCreate = (newDangKyPhong: tb_dang_ky_phong) => {
-        api_tb_dang_ky_phong_add(newDangKyPhong).then((res) => {
-            if (res) {
-                // kiểm tra sinh viên đã có trong hệ thống hay chưa ? -> nếu chưa 
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Thành công',
-                    detail: 'Đã lưu thông tin đăng ký phòng',
-                    life: 3000,
-                })
+            await api_tb_dang_ky_phong_add(newDangKyPhong);
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Thành công',
+                detail: 'Đã lưu thông tin đăng ký phòng',
+                life: 3000,
+            })
+
+            debugger;
+            if (newDangKyPhong.trang_thai === 'da') {
+                const sinhVien = await api_tb_sinh_vien_CheckByMSV(newDangKyPhong.ma_sinh_vien);
+                debugger;
+                if (!sinhVien) {
+                    // Nếu chưa có -> Thêm mới sinh viên vào hệ thống
+                    const newSinhVien = {
+                        ma_sinh_vien: newDangKyPhong.ma_sinh_vien,
+                        ho_ten: newDangKyPhong.ho_ten,
+                        sdt: newDangKyPhong.sdt,
+                        email: newDangKyPhong.email,
+                        gioi_tinh: newDangKyPhong.gioi_tinh,
+                    } as Partial<tb_sinh_vien>;
+                    await api_tb_sinh_vien_add(newSinhVien);
+                    toast.current?.show({
+                        severity: 'info',
+                        summary: 'Thông báo',
+                        detail: 'Đã thêm mới sinh viên vào hệ thống',
+                        life: 3000,
+                    });
+                }
+                // sau đó thêm sinh viên vào phòng
+                const phong = dsPhong.find((phong) => phong.id_tb_phong === newDangKyPhong.id_tb_phong);
+                if (phong) {
+                    const newTrongPhong = {
+                        id_tb_phong: phong.id_tb_phong,
+                        id_tb_nguoi_dung: sinhVien.id_tb_nguoi_dung,
+                    } as tb_trong_phong;
+                    await api_tb_trong_phong_add(newTrongPhong);
+
+                    toast.current?.show({
+                        severity: 'success',
+                        summary: 'Thành công',
+                        detail: 'Đã thêm sinh viên vào phòng',
+                        life: 3000,
+                    })
+                }
             }
-        }).catch((err) => {
-            console.log(err);
+        }
+        catch (error) {
+            console.error("Lỗi khi thêm đăng ký phòng:", error);
             toast.current?.show({
                 severity: 'error',
                 summary: 'Lỗi',
-                detail: 'Lưu thông tin không thành công',
+                detail: 'Đã xảy ra lỗi khi thêm đăng ký phòng',
                 life: 3000,
             })
-        });
-
-        if (newDangKyPhong.trang_thai === 'da') {
-            // thêm sinh viên vào phòng -> sinh viên đã có trong hệ thống hay chưa ? 
-            
         }
     }
 
@@ -299,7 +330,14 @@ const QuanLyDangKyPhong = () => {
                 header="Thêm đăng ký phòng"
                 visible={visible}
                 style={{ width: '60vw' }}
-                onHide={() => setVisible(false)}
+                onHide={() => {
+                    setVisible(false)
+                    selectedSV && setSelectedSV(undefined)
+                    setCurrentDkp(newDKP)
+                    setSearchTerm('')
+                    setSearchResults([])
+                    setErrors({})
+                }}
                 footer={footerDKP}
             >
                 <div className="">
@@ -333,7 +371,7 @@ const QuanLyDangKyPhong = () => {
                                         <td className="border p-2">{student.ma_sinh_vien}</td>
                                         <td className="border p-2">{student.ho_ten}</td>
                                         <td className="border p-2">{(new Date(student.ngay_sinh)).toLocaleDateString('vi-VN')}</td>
-                                        <td className="border p-2">{student.gioi_tinh == '0' ? 'Nữ' : 'Nam'}</td>
+                                        <td className="border p-2">{student.gioi_tinh == '0' ? 'Nữ' : student.gioi_tinh == '1' ? 'Nam' : 'Chọn giới tính'}</td>
                                         <td className="border p-2">{student.sdt}</td>
                                     </tr>
                                 ))}
@@ -363,8 +401,9 @@ const QuanLyDangKyPhong = () => {
                                     className="w-full"
                                     value={currentDkp.gioi_tinh}
                                     options={[
-                                        { label: 'Nam', value: '1' },
-                                        { label: 'Nữ', value: '0' }
+                                        { label: 'Chọn giới tính', value: '' },
+                                        { label: 'Nữ', value: '0' },
+                                        { label: 'Nam', value: '1' }
                                     ]}
                                     onChange={(e) => setCurrentDkp({ ...currentDkp, gioi_tinh: e.value })}
                                     placeholder="Chọn giới tính"

@@ -73,7 +73,7 @@ class Controller_tb_sinh_vien {
         })
     }
     checkByMSV(req, res) {
-        model.getByMSV(req.params.msv, (err, result) => {
+        model.checkByMSV(req.params.msv, (err, result) => {
             if (err) {
                 res.send(err)
             }
