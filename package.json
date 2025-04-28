@@ -1,0 +1,11 @@
+{
+    "name": "website_qlktx",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "concurrently \"npm run dev --prefix api_qlktx\" \"npm run dev --prefix website_qlktx_sakai_template\""
+    },
+    "devDependencies": {
+        "concurrently": "^8.0.0"
+    }
+}
