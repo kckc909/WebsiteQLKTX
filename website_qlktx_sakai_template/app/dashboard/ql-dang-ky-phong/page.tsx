@@ -11,7 +11,7 @@ import { tb_dang_ky_phong, tb_phong, tb_sinh_vien, tb_trong_phong } from '@custo
 import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { api_tb_dang_ky_phong_add, api_tb_dang_ky_phong_deleteMany, api_tb_dang_ky_phong_getAll, api_tb_dang_ky_phong_getByTrangThai } from 'app/api/dashboard/api_tb_dang_ky_phong';
+import { api_tb_dang_ky_phong_add, api_tb_dang_ky_phong_deleteMany, api_tb_dang_ky_phong_getAll, api_tb_dang_ky_phong_getByTrangThai, api_tb_dang_ky_phong_update } from 'app/api/dashboard/api_tb_dang_ky_phong';
 import ChonPhong from '@components/ChonPhong';
 import { api_tb_phong_getAll } from 'app/api/dashboard/api_tb_phong';
 import { join } from 'path';
@@ -109,6 +109,12 @@ const QuanLyDangKyPhong = () => {
         setTrangThai('cho');
     }
 
+    const lamMoi = async () => {
+        const dataDSDKP = await api_tb_dang_ky_phong_getAll();
+        setds_Dkp(dataDSDKP);
+        setFilter(ds_dkp.filter((dkp) => dkp.trang_thai === trang_thai));
+    }
+
     const openCreateDialog = (_selectedDKP: tb_dang_ky_phong) => {
         setCurrentDkp(_selectedDKP);
         setVisible(true);
@@ -116,37 +122,45 @@ const QuanLyDangKyPhong = () => {
 
     const validateDangKyPhong = (data: Partial<tb_dang_ky_phong>) => {
         let newErrors: { [key: string]: string } = {};
-
         const phoneRegex = /^(0|\+84)[0-9]{9}$/;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
+        // kiểm tra trùng đơn đăng ký (1 đơn / 1 người / 1 kì )
+        // kiểm tra thông tin
         if (!data.ma_sinh_vien || data.ma_sinh_vien.trim() === '') {
             newErrors.ma_sinh_vien = 'Mã sinh viên không được để trống.'
         }
-
         if (typeof data.id_tb_phong != 'number' || data.id_tb_phong <= 0) {
             newErrors.id_tb_phong = 'Vui lòng chọn phòng ở!'
         }
-
         if (!data.ho_ten || data.ho_ten.trim() === '') {
             newErrors.ho_ten = 'Họ tên không được để trống.'
         }
-
         if (!data.sdt || data.sdt.trim() === '') {
             newErrors.sdt = 'Số điện thoại không được để trống.';
         } else if (!phoneRegex.test(data.sdt.trim())) {
             newErrors.sdt = 'Số điện thoại không hợp lệ.';
         }
-
         if (!data.email || data.email.trim() === '') {
             newErrors.email = 'Email không được để trống.';
         } else if (!emailRegex.test(data.email.trim())) {
             newErrors.email = 'Email không hợp lệ.';
         }
-
         if (!data.gioi_tinh || (data.gioi_tinh.trim() !== '1' && data.gioi_tinh.trim() !== '0')) {
             newErrors.gioi_tinh = 'Vui lòng chọn giới tính'
         }
+        // kiểm tra phòng
+        let p_ok = false;
+        const p = dsPhong.find(p => { p.id_tb_phong == data.id_tb_phong });
+        if (p) {
+            const tongNguoi = p.so_luong + ds_dkp.filter(dkp => dkp.id_tb_phong === p.id_tb_phong).length;
+            if (tongNguoi < p.kich_thuoc_toi_da) {
+                p_ok = true
+            }
+        }
+        if (!p_ok) {
+            newErrors.phong_day = 'Vui lòng chọn phòng còn chỗ trống'
+        }
+
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             return false;
@@ -170,7 +184,7 @@ const QuanLyDangKyPhong = () => {
 
     const handleCreate = async (newDangKyPhong: tb_dang_ky_phong) => {
         try {
-
+            newDangKyPhong.thoi_gian_dang_ky = new Date().toISOString().split('T')[0];
             await api_tb_dang_ky_phong_add(newDangKyPhong);
             toast.current?.show({
                 severity: 'success',
@@ -178,12 +192,10 @@ const QuanLyDangKyPhong = () => {
                 detail: 'Đã lưu thông tin đăng ký phòng',
                 life: 3000,
             })
-
-            debugger;
             if (newDangKyPhong.trang_thai === 'da') {
-                const sinhVien = await api_tb_sinh_vien_CheckByMSV(newDangKyPhong.ma_sinh_vien);
-                debugger;
-                if (!sinhVien) {
+                const sinhViens = await api_tb_sinh_vien_CheckByMSV(newDangKyPhong.ma_sinh_vien);
+                console.log(sinhViens)
+                if (!sinhViens || sinhViens.length === 0) {
                     // Nếu chưa có -> Thêm mới sinh viên vào hệ thống
                     const newSinhVien = {
                         ma_sinh_vien: newDangKyPhong.ma_sinh_vien,
@@ -192,7 +204,9 @@ const QuanLyDangKyPhong = () => {
                         email: newDangKyPhong.email,
                         gioi_tinh: newDangKyPhong.gioi_tinh,
                     } as Partial<tb_sinh_vien>;
-                    await api_tb_sinh_vien_add(newSinhVien);
+                    const idNewSinhVien = await api_tb_sinh_vien_add(newSinhVien);
+                    console.log(idNewSinhVien)
+                    debugger;
                     toast.current?.show({
                         severity: 'info',
                         summary: 'Thông báo',
@@ -205,7 +219,7 @@ const QuanLyDangKyPhong = () => {
                 if (phong) {
                     const newTrongPhong = {
                         id_tb_phong: phong.id_tb_phong,
-                        id_tb_nguoi_dung: sinhVien.id_tb_nguoi_dung,
+                        id_tb_nguoi_dung: sinhViens[0].id_tb_nguoi_dung,
                     } as tb_trong_phong;
                     await api_tb_trong_phong_add(newTrongPhong);
 
@@ -230,7 +244,11 @@ const QuanLyDangKyPhong = () => {
     }
 
     const handleUpdate = (updatedDangKyPhong: tb_dang_ky_phong) => {
-        // cập nhật
+        // kiểm tra tồn tại -> kiểm tra nếu sinh viên đã đang ký 1 lần trong cùng 1 học kì thì -> cho lựa chọn giữ cũ hay thay mới hoặc không làm gì cả
+        // giữ cũ thì xóa đơn này giữ mới thì xóa đơn cũ
+
+        // cập nhật + duyệt
+        handleDuyet(updatedDangKyPhong);
     }
 
     const handleDeleteSelected = () => {
@@ -258,9 +276,62 @@ const QuanLyDangKyPhong = () => {
         setDeleteDialogVisible(false)
     }
 
-    const handleDuyet = () => {
-        // duyệt đăng ký phòng -> update trạng thái + thêm sinh viên vào phòng
-    }
+    const handleDuyet = async (dangKyPhong: tb_dang_ky_phong) => {
+        // Cập nhật trạng thái đơn
+        const updatedDangKyPhong: tb_dang_ky_phong = { ...dangKyPhong, trang_thai: 'da' };
+
+        api_tb_dang_ky_phong_update(updatedDangKyPhong)
+            .then(async (res: any) => {
+                if (res) {
+                    // kiểm tra sinh viên đã tồn tại hay chưa -> tạo mới nếu chưa có
+                    await api_tb_sinh_vien_CheckByMSV(updatedDangKyPhong.ma_sinh_vien)
+                        .then(async (existedSV: Partial<tb_sinh_vien>) => {
+                            if (!(existedSV && existedSV.id_tb_nguoi_dung)) {
+                                const newSV: Partial<tb_sinh_vien> = {
+                                    gioi_tinh: updatedDangKyPhong.gioi_tinh,
+                                    ma_sinh_vien: updatedDangKyPhong.ma_sinh_vien,
+                                    ho_ten: updatedDangKyPhong.ho_ten,
+                                    email: updatedDangKyPhong.email,
+                                    sdt: updatedDangKyPhong.sdt,
+                                    ghi_chu: 'Thêm mới khi duyệt vào phòng'
+                                }
+                                await api_tb_sinh_vien_add(newSV);
+                            }
+                        })
+                        .catch((err: any) => {
+                            console.error(err);
+                            toast.current?.show({
+                                severity: 'error',
+                                summary: 'Lỗi',
+                                detail: 'Lỗi trong quá trình kiểm tra tồn tại sinh viên!',
+                                life: 3000,
+                            });
+                        })
+                    // thêm sinh viên vào phòng
+                    const tbPhong: tb_trong_phong = {
+                        id_tb_phong: updatedDangKyPhong.id_tb_phong,
+                        id_tb_nguoi_dung: updatedDangKyPhong.id_tb_nguoi_dung,
+                        ghi_chu: ''
+                    }
+                    api_tb_trong_phong_add(tbPhong)
+                        .then((restp: any) => {
+
+                        })
+                        .catch((err: any) => {
+
+                        })
+                }
+            })
+            .catch((err: any) => {
+                console.error(err);
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Lỗi',
+                    detail: 'Duyệt không thành công',
+                    life: 3000,
+                });
+            });
+    };
 
     const headerDSDKP = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
@@ -319,7 +390,7 @@ const QuanLyDangKyPhong = () => {
             <FunctionTitle title="Quản lý đăng ký phòng" />
             <Toolbar className="mb-4" left={() => (
                 <>
-                    <Button label="Làm mới" icon="pi pi-refresh" onClick={getAll} className="mr-2" />
+                    <Button label="Làm mới" icon="pi pi-refresh" onClick={lamMoi} className="mr-2" />
                     <Button label="Thêm mới" icon="pi pi-plus" onClick={() => {
                         openCreateDialog(newDKP);
                     }} className="mr-2 bg-primary" />
@@ -431,9 +502,9 @@ const QuanLyDangKyPhong = () => {
                                 className="w-full"
                                 value={currentDkp.trang_thai}
                                 options={[
-                                    { label: 'Chờ duyệt', value: 'cho_duyet' },
-                                    { label: 'Đã duyệt', value: 'da_duyet' },
-                                    { label: 'Từ chối', value: 'tu_choi' }
+                                    { label: 'Chờ duyệt', value: 'cho' },
+                                    { label: 'Đã duyệt', value: 'da' },
+                                    { label: 'Từ chối', value: 'tu' }
                                 ]}
                                 onChange={(e) => setCurrentDkp({ ...currentDkp, trang_thai: e.value })}
                                 placeholder="Chọn trạng thái"
@@ -461,6 +532,8 @@ const QuanLyDangKyPhong = () => {
                             }}
                             sltPhong={currentDkp.id_tb_phong}
                         />
+                        {errors.id_tb_phong && <small className="p-error">{errors.id_tb_phong}</small>}
+                        {errors.phong_day && <small className="p-error">{errors.phong_day}</small>}
                     </div>
                 </div>
             </Dialog>
@@ -488,8 +561,8 @@ const QuanLyDangKyPhong = () => {
                     header="Trạng thái"
                     body={(rowData) => (
                         rowData.trang_thai === 'cho' ? 'Chờ duyệt' :
-                            rowData.trang_thai === 'duyet' ? 'Đã duyệt' :
-                                rowData.trang_thai === 'tu_choi' ? 'Từ chối' :
+                            rowData.trang_thai === 'da' ? 'Đã duyệt' :
+                                rowData.trang_thai === 'tu' ? 'Từ chối' :
                                     'Không xác định'
                     )}
                 />
