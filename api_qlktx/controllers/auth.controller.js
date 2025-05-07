@@ -17,7 +17,7 @@ class Controller_Auth {
                 if (result && result.length > 0) {
                     const userFound = result[0]
 
-                    if (userFound.mat_khau === user.password) {  
+                    if (userFound.mat_khau === user.password) {
                         const token = jwt.sign(
                             {
                                 id_tb_nguoi_dung: userFound.id_tb_nguoi_dung,
@@ -30,6 +30,7 @@ class Controller_Auth {
                                 token: token,
                                 info: jwt.verify(token, SECRET_KEY)
                             });
+                        return
                     }
 
                     bcrypt.compare(user.password, userFound.mat_khau, (err, result) => {

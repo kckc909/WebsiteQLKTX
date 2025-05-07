@@ -16,6 +16,22 @@ import { Avatar } from 'primereact/avatar';
 import { apiBaseUrl } from 'app/api/baseUrl';
 import { Dropdown } from 'primereact/dropdown';
 
+// 🗂 Bảng cột gợi ý:
+// 📛 Mã nhân viên
+// 🧑‍💼 Họ tên
+// ☎️ Số điện thoại
+// ✉️ Email
+// 🏢 Chức vụ -> Nhân viên quản lý 
+// 📅 Ngày vào làm
+// ✅ Trạng thái (Đang làm / Đã nghỉ)
+// ⚙️ Thao tác (Sửa, Xem chi tiết, Xóa)
+// 🔥 Chức năng chính
+// ➕ Thêm mới nhân viên
+// ✏️ Sửa thông tin
+// ❌ Xóa (hoặc ẩn) nhân viên đã nghỉ
+// 🔍 Tìm kiếm theo tên, bộ phận
+// -> chọn thông tin -> hiển thị chi tiết (giống sv)
+
 const _empty: tb_nhan_vien = {
     id_tb_nguoi_dung: 0,
     ma_nhan_vien: '',
@@ -29,7 +45,6 @@ const _empty: tb_nhan_vien = {
     avatar: "",
     ghi_chu: "",
 };
-
 
 const Crud_tb_nhan_vien = () => {
     // declare

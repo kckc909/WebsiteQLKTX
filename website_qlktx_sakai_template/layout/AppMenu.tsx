@@ -41,8 +41,8 @@ const AppMenu = () => {
         {
             label: 'Thông tin cá nhân',
             items: [
-                { label: 'Thông tin tài khoản', icon: 'pi pi-user', to: '/pages/phong' },
-                { label: 'Đổi mật khẩu', icon: 'pi pi-lock', to: '/pages/phong' },
+                { label: 'Thông tin tài khoản', icon: 'pi pi-user', to: '/dashboard/thong-tin-ca-nhan/thong-tin-tai-khoan' },
+                { label: 'Đổi mật khẩu', icon: 'pi pi-lock', to: '/dashboard/thong-tin-ca-nhan/doi-mat-khau' },
                 {
                     label: 'Đăng xuất', icon: 'pi pi-home', command: () => {
                         localStorage.removeItem('token');

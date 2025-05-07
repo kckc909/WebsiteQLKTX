@@ -30,9 +30,37 @@ const lineData: ChartData = {
         }
     ]
 };
+// ✅ 1. Thông tin tổng quan (Widgets/Stats)
+// Hiển thị dưới dạng thẻ số liệu hoặc icon box, thường đặt trên đầu:
+// 🔢 Số sinh viên đang ở: Ví dụ: 320 sinh viên
+// 🏠 Số phòng còn trống: Ví dụ: 12 phòng
+// 📑 Số đơn đăng ký chờ duyệt: Ví dụ: 24 đơn
+// 💡 Công nợ điện nước tháng này: Ví dụ: 15 triệu đồng
+// 👨‍💼 Số nhân viên đang hoạt động: Ví dụ: 5 nhân viên
+// ✅ 2. Các bảng / biểu đồ quan trọng
+// Hiển thị dưới phần tổng quan:
+// 🟠 Bảng "Đơn đăng ký mới nhất"
+// Hiển thị 5-10 đơn gần đây để admin duyệt nhanh.
+// Cột: Mã SV, Họ tên, Phòng đăng ký, Ngày đăng ký, Trạng thái, Thao tác (duyệt/từ chối)
+// 🟢 Biểu đồ phòng
+// Biểu đồ tròn (Pie Chart): Tỷ lệ phòng đã đầy / còn trống.
+// Biểu đồ cột: Số lượng sinh viên mỗi khu (Khu A, Khu B, Khu C…).
+// 🔵 Thông báo gần đây
+// Hiển thị 5-6 tin thông báo mới nhất.
+// Có nút "Xem tất cả" dẫn về trang quản lý tin tức.
+// ✅ 3. Chức năng nhanh (Quick Actions)
+// Góc phải hoặc bên dưới:
+// ➕ Thêm sinh viên
+// 📝 Tạo đơn đăng ký phòng
+// 📢 Tạo thông báo mới
+// 📊 Xem thống kê chi tiết
+// ✅ 4. Tùy chọn nâng cao (nếu muốn mở rộng)
+// 📅 Lịch sự kiện (nhắc lịch đóng tiền điện/nước)
 
+// 📈 Biểu đồ doanh thu từ tiền phòng, tiền điện nước
+// 🚪 Lịch sử ra vào phòng gần đây
 const Dashboard = () => {
-    
+
     const menu1 = useRef<Menu>(null);
     const menu2 = useRef<Menu>(null);
     const [lineOptions, setLineOptions] = useState<ChartOptions>({});
@@ -59,7 +87,7 @@ const Dashboard = () => {
             }
         ]
     };
-    
+
     const chartOptions = {
         responsive: true,
         plugins: {
@@ -72,7 +100,7 @@ const Dashboard = () => {
             },
         },
     };
-    
+
     return (
         <>
             <Card className="p-4">

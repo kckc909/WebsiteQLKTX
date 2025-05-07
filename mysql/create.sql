@@ -154,7 +154,17 @@ create table tb_dang_ky_phong(
     trang_thai varchar(5),
 	thoi_gian_dang_ky date,
     ghi_chu nvarchar(100),
-    id_tb_nguoi_dung int null
+    id_tb_nguoi_dung int null,
+    id_tb_hoc_ki int references tb_hoc_ki(id_tb_hoc_ki) on delete cascade on update cascade,
+);
+
+create tb_hoc_ki(
+    id_tb_hoc_ki int primary key auto_increment,
+    ki nvarchar(5),
+    nam_hoc nvarchar(11),
+    thoi_gian_bat_dau nvarchar(20),
+    thoi_gian_ket_thuc nvarchar(20),
+    ghi_chu nvarchar(100)
 );
 -- triggers 
 

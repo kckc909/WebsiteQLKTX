@@ -8,20 +8,36 @@ import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import React, { useEffect, useRef, useState } from 'react';
-import {tb_bai_dang} from '../../../types/custom';
-import { api_tb_bai_dang_add, api_tb_bai_dang_delete, api_tb_bai_dang_getAll, api_tb_bai_dang_update } from '../../api/dashboard/ql_tb_bai_dang';
+import { tb_bai_dang } from '../../../types/custom';
+import { api_tb_bai_dang_add, api_tb_bai_dang_delete, api_tb_bai_dang_getAll, api_tb_bai_dang_update } from '../../api/dashboard/api_tb_bai_dang';
 
-const _empty: tb_bai_dang = {
+// ✅ 4. Quản lý bài đăng
+// 🗂 Bảng cột gợi ý:
+// 🆔 Mã bài đăng
+// 📝 Tiêu đề
+// 📅 Ngày đăng
+// 👤 Người đăng
+// 👁️ Lượt xem
+// ✅ Trạng thái (Hiển thị / Ẩn)
+// ⚙️ Thao tác (Sửa, Xóa, Xem)
+// 🔥 Chức năng chính
+// ➕ Thêm mới bài viết (có trình soạn thảo nội dung)
+// ✏️ Sửa bài đăng
+// ❌ Xóa / Ẩn bài cũ
+// 📊 Thống kê bài được xem nhiều
+// 📤 Đăng bài ra trang sinh viê
+
+const _empty: Partial<tb_bai_dang> = {
     id_tb_bai_dang: 0,
     id_tb_nguoi_dung: 0,
-    tieu_de: "",
-    noi_dung: NULL,
-    ngay_dang: NULL,
-    luot_xem: 0,
+    tieu_de: undefined,
+    noi_dung: undefined,
+    ngay_dang: undefined,
+    luot_xem: undefined
 };
 const Crud_tb_bai_dang = () => {
     const [tb_bai_dangs, set_tb_bai_dangs] = useState<tb_bai_dang[]>([]);
-    const [tb_bai_dang, set_tb_bai_dang] = useState<tb_bai_dang>(_empty);
+    const [tb_bai_dang, set_tb_bai_dang] = useState<Partial<tb_bai_dang>>(_empty);
     const [selected_tb_bai_dangs, setselected_tb_bai_dangs] = useState<tb_bai_dang[]>([]);
     const [dialogState, setDialogState] = useState({ tb_bai_dang: false, delete: false, deleteMulti: false });
     const toast = useRef<Toast>(null);
@@ -46,14 +62,14 @@ const Crud_tb_bai_dang = () => {
     };
 
     const save_tb_bai_dang = async () => {
-        if (!tb_bai_dang.ten_tb_bai_dang.trim()) return;
+        if (!tb_bai_dang.tieu_de) return;
 
-        const updated_tb_bai_dang = { ...tb_bai_dang};
+        const updated_tb_bai_dang = { ...tb_bai_dang };
         let newtb_bai_dangs = [...tb_bai_dangs];
 
         if (tb_bai_dang.id_tb_bai_dang) {
             await api_tb_bai_dang_update(updated_tb_bai_dang);
-            newtb_bai_dangs = newtb_bai_dangs.map((p) => (p.id_tb_bai_dang === tb_bai_dang.id_tb_bai_dang ? updated_tb_bai_dang : p));
+            // newtb_bai_dangs = newtb_bai_dangs.map((p) => (p.id_tb_bai_dang === tb_bai_dang.id_tb_bai_dang ? updated_tb_bai_dang : p));
             toast.current?.show({ severity: 'success', summary: 'Cập nhật thành công', detail: 'Thông tin ___ đã được cập nhật', life: 3000 });
         } else {
             const newtb_bai_dang = await api_tb_bai_dang_add(updated_tb_bai_dang);
@@ -66,9 +82,9 @@ const Crud_tb_bai_dang = () => {
     };
 
     const delete_tb_bai_dang = async () => {
-        await api_tb_bai_dang_delete(tb_bai_dang.id_tb_bai_dang);
+        await api_tb_bai_dang_delete(tb_bai_dang.id_tb_bai_dang!);
         set_tb_bai_dangs(tb_bai_dangs.filter((p) => p.id_tb_bai_dang !== tb_bai_dang.id_tb_bai_dang));
-        toast.current?.show({ severity: 'success', summary: 'Xóa thành công', detail: `___ ${tb_bai_dang.ten_tb_bai_dang} đã bị xóa`, life: 3000 });
+        toast.current?.show({ severity: 'success', summary: 'Xóa thành công', detail: `___ ${tb_bai_dang.tieu_de} đã bị xóa`, life: 3000 });
         closeDialog('delete');
     };
 
@@ -123,11 +139,11 @@ const Crud_tb_bai_dang = () => {
                     <Dialog visible={dialogState.tb_bai_dang} header='Thông tin ___' modal footer={<Button label='Lưu' icon='pi pi-check' onClick={save_tb_bai_dang} />} onHide={() => closeDialog('tb_bai_dang')}>
                         <div className='field'>
                             <label htmlFor='so_luong'></label>
-                            <InputNumber id='id_tb_bai_dang' value=tb_bai_dang.id_tb_bai_dang onValueChange={(e) => set_tb_bai_dang({ ...tb_bai_dang, id_tb_bai_dang: e.value || 0 })} />
+                            <InputNumber id='id_tb_bai_dang' value={tb_bai_dang.id_tb_bai_dang} onValueChange={(e) => set_tb_bai_dang({ ...tb_bai_dang, id_tb_bai_dang: e.value || 0 })} />
                         </div>
                         <div className='field'>
                             <label htmlFor='so_luong'></label>
-                            <InputNumber id='id_tb_nguoi_dung' value=tb_bai_dang.id_tb_nguoi_dung onValueChange={(e) => set_tb_bai_dang({ ...tb_bai_dang, id_tb_nguoi_dung: e.value || 0 })} />
+                            <InputNumber id='id_tb_nguoi_dung' value={tb_bai_dang.id_tb_nguoi_dung} onValueChange={(e) => set_tb_bai_dang({ ...tb_bai_dang, id_tb_nguoi_dung: e.value || 0 })} />
                         </div>
                         <div className='field'>
                             <label htmlFor='tieu_de'>tieu_de</label>
@@ -139,11 +155,13 @@ const Crud_tb_bai_dang = () => {
                         </div>
                         <div className='field'>
                             <label htmlFor='ngay_dang'>ngay_dang</label>
-                            <InputText id='ngay_dang' value={tb_bai_dang.ngay_dang} onChange={(e) => set_tb_bai_dang({ ...tb_bai_dang, ngay_dang: e.target.value })} />
+                            <InputText id='ngay_dang' value={tb_bai_dang.ngay_dang?.toDateString()}
+                                // onChange={(e) => set_tb_bai_dang({ ...tb_bai_dang, ngay_dang: e.target.value })}
+                            />
                         </div>
                         <div className='field'>
                             <label htmlFor='so_luong'></label>
-                            <InputNumber id='luot_xem' value=tb_bai_dang.luot_xem onValueChange={(e) => set_tb_bai_dang({ ...tb_bai_dang, luot_xem: e.value || 0 })} />
+                            <InputNumber id='luot_xem' value={tb_bai_dang.luot_xem} onValueChange={(e) => set_tb_bai_dang({ ...tb_bai_dang, luot_xem: e.value || 0 })} />
                         </div>
                     </Dialog>
 

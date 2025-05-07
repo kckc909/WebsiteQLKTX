@@ -5,11 +5,11 @@ export interface LoginRequest {
 
 export interface tb_bai_dang {
     id_tb_bai_dang: number;
-    id_tb_nguoi_dung: number | undefined;
-    tieu_de: string | undefined;
-    noi_dung: any | undefined;
-    ngay_dang: Date | undefined;
-    luot_xem: number | undefined;
+    id_tb_nguoi_dung: number ;
+    tieu_de: string ;
+    noi_dung: any ;
+    ngay_dang: Date ;
+    luot_xem: number ;
 }
 
 export interface tb_gia_phong {
@@ -144,7 +144,7 @@ export interface tb_dang_ky_phong {
     sdt: string,
     id_tb_phong: number,
     trang_thai: string,
-    thoi_gian_dang_ky: Date,
+    thoi_gian_dang_ky: Date | string,
     ghi_chu: string | null,
     id_tb_nguoi_dung: number
 }

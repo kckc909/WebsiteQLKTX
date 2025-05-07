@@ -19,6 +19,7 @@ const Footer = () => {
         <footer className="bg-gray-700 w-full text-white pt-5">
             <div className="grid grid-cols-4 m-0 px-10">
                 {/* Logo ? */}
+                
                 <div>
 
                 </div>

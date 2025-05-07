@@ -14,10 +14,8 @@ class Model_tb_sinh_vien {
     }
     async insert(obj, callback) {
         const connection = await db.promise().getConnection();
-    
         try {
             await connection.beginTransaction();
-    
             if (Array.isArray(obj)) {
                 let userInsertPromises = obj.map(value => {
                     return new Promise(async (resolve, reject) => {
@@ -33,34 +31,27 @@ class Model_tb_sinh_vien {
                         }
                     });
                 });
-    
                 const userIds = await Promise.all(userInsertPromises);
                 obj.forEach((value, index) => {
                     value.id_tb_nguoi_dung = userIds[index];
                 });
-    
                 const columns = Object.keys(obj[0]);
                 const values = obj.flatMap(value => Object.values(value));
                 const sql = `INSERT INTO tb_sinh_vien (${columns.join(", ")}) VALUES (${columns.map(() => "?").join(", ")})`;
-
                 await connection.execute(sql, values);
             } else {
                 const [userResult] = await connection.execute(
                     `INSERT INTO tb_nguoi_dung (ten_tai_khoan, mat_khau, quyen) VALUES (?, ?, ?)`,
                     [obj.ma_sinh_vien, obj.ma_sinh_vien, "sv"]
                 );
-    
                 obj.id_tb_nguoi_dung = userResult.insertId;
-    
                 const columns = Object.keys(obj);
                 const values = Object.values(obj);
                 const sql = `INSERT INTO tb_sinh_vien (${columns.join(", ")}) VALUES (${columns.map(() => "?").join(", ")})`;
-    
                 await connection.execute(sql, values);
             }
-    
             await connection.commit();
-            callback(null, { message: "Thêm thành công" });
+            callback(null, { message: "Thêm thành công", id_tb_nguoi_dung: obj.id_tb_nguoi_dung });
         } catch (error) {
             console.error("Error:", error);
             await connection.rollback();
