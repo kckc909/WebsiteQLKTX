@@ -12,7 +12,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { tb_phong } from '../../../types/custom';
 import { api_tb_phong_add, api_tb_phong_delete, api_tb_phong_getAll, api_tb_phong_update } from '../../api/dashboard/api_tb_phong';
 import { useRouter } from 'next/navigation';
-import FunctionTitle from '@components/function_title';
+import FeatureTitle from '@components/function_title';
 
 const emptyPhong: tb_phong = {
     id_tb_phong: 0,
@@ -101,11 +101,11 @@ const CrudPhong = () => {
 
     return (
         <>
-            <FunctionTitle title="Quản lý phòng" />
+            <FeatureTitle title="Quản lý phòng" />
+            <Toast ref={toast} />
             <div className="grid crud-demo">
                 <div className="col-12">
                     <div className="card">
-                        <Toast ref={toast} />
                         <Toolbar className="mb-4" left={() => (
                             <>
                                 <div>

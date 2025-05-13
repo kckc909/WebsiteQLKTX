@@ -6,7 +6,7 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Toolbar } from 'primereact/toolbar';
 import { Toast } from 'primereact/toast';
-import FunctionTitle from '@components/function_title';
+import FeatureTitle from '@components/function_title';
 import { tb_dang_ky_phong, tb_phong, tb_sinh_vien, tb_trong_phong } from '@custom';
 import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
@@ -14,12 +14,8 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { api_tb_dang_ky_phong_add, api_tb_dang_ky_phong_deleteMany, api_tb_dang_ky_phong_getAll, api_tb_dang_ky_phong_getByTrangThai, api_tb_dang_ky_phong_update } from 'app/api/dashboard/api_tb_dang_ky_phong';
 import ChonPhong from '@components/ChonPhong';
 import { api_tb_phong_getAll } from 'app/api/dashboard/api_tb_phong';
-import { join } from 'path';
 import { api_tb_sinh_vien_add, api_tb_sinh_vien_CheckByMSV, api_tb_sinh_vien_search } from 'app/api/dashboard/api_tb_sinh_vien';
-import { Checkbox } from 'primereact/checkbox';
-import { InputNumber } from 'primereact/inputnumber';
 import { api_tb_trong_phong_add } from 'app/api/dashboard/api_tb_trong_phong';
-
 
 // hiển thị dnah sách đăng ký phòng
 // xem thông tin chi tiết đăng ký phòng
@@ -387,7 +383,7 @@ const QuanLyDangKyPhong = () => {
     return (
         <div>
             <Toast ref={toast} />
-            <FunctionTitle title="Quản lý đăng ký phòng" />
+            <FeatureTitle title="Quản lý đăng ký phòng" />
             <Toolbar className="mb-4" left={() => (
                 <>
                     <Button label="Làm mới" icon="pi pi-refresh" onClick={lamMoi} className="mr-2" />

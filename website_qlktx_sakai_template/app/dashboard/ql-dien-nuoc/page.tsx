@@ -8,7 +8,7 @@ import { Column } from 'primereact/column';
 import { InputText } from 'primereact/inputtext';
 import { useEffect, useState } from "react";
 import { Banknote, Droplets, Zap } from 'lucide-react'
-import FunctionTitle from "@components/function_title";
+import FeatureTitle from "@components/function_title";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -126,7 +126,7 @@ const QLDienNuoc = () => {
 
     return (
         <div className="w-full p-3 flex flex-col gap-4">
-            <FunctionTitle title="Quản lý số điện số nước" />
+            <FeatureTitle title="Quản lý số điện số nước" />
 
             {/* Bộ lọc tháng */}
             <div className="flex items-center gap-3">

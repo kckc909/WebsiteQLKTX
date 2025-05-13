@@ -5,11 +5,12 @@ export interface LoginRequest {
 
 export interface tb_bai_dang {
     id_tb_bai_dang: number;
-    id_tb_nguoi_dung: number ;
-    tieu_de: string ;
-    noi_dung: any ;
-    ngay_dang: Date ;
-    luot_xem: number ;
+    id_tb_nguoi_dung: number;
+    tieu_de: string;
+    noi_dung: any;
+    ngay_dang: Date;
+    luot_xem: number;
+    trang_thai: number; // 1: Hiển thị, 0: Ẩn
 }
 
 export interface tb_gia_phong {
@@ -84,7 +85,7 @@ export interface tb_phong {
     so_luong: number;
     gioi_tinh_phong: string | null | undefined; // 0 nữ hoặc 1 nam
     day_nha: string | undefined;
-    tang : number;
+    tang: number;
 }
 
 export interface tb_sinh_vien {

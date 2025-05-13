@@ -67,3 +67,5 @@ export default function HomePage() {
         // </>
     )
 }
+
+// trang chủ trên có slide giới thiệu, số lượng phòng 

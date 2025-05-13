@@ -17,7 +17,7 @@ import { apiBaseUrl } from 'app/api/baseUrl';
 import { post_avatar, put_avatar } from 'app/api/dashboard/api_upload';
 import { useRouter } from 'next/navigation';
 import { Dropdown } from 'primereact/dropdown';
-import FunctionTitle from '@components/function_title';
+import FeatureTitle from '@components/function_title';
 
 const _empty: tb_sinh_vien = {
     id_tb_nguoi_dung: 0,
@@ -201,7 +201,7 @@ const Crud_tb_sinh_vien = () => {
     return (
 
         <div className='grid crud-demo'>
-            <FunctionTitle title="Quản lý sinh viên" />
+            <FeatureTitle title="Quản lý sinh viên" />
             <div className='col-12'>
                 <div className='card'>
                     <Toast ref={toast} />

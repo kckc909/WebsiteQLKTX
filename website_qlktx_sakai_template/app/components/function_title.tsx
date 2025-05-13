@@ -6,7 +6,7 @@ interface FunctionTitleProps {
     subTitle?: string; 
 }
 
-const FunctionTitle: React.FC<FunctionTitleProps> = ({ title, subTitle }) => {
+const FeatureTitle: React.FC<FunctionTitleProps> = ({ title, subTitle }) => {
     return (
         <div className="mb-3">
             <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
@@ -15,4 +15,4 @@ const FunctionTitle: React.FC<FunctionTitleProps> = ({ title, subTitle }) => {
     );
 };
 
-export default FunctionTitle;
+export default FeatureTitle;
