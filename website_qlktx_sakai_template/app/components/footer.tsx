@@ -1,3 +1,8 @@
+// Cột giới thiệu : chính sách, điều khoản, thông tin về chúng tôi, 
+// Địa chỉ : địa chỉ ký túc xá, có bản đổ (khi nhấn vào thì sang trang google map)
+// Liên hệ : số điện thoại 
+// Mạng xã hội : facebook, zalo, youtube
+
 import Link from "next/link";
 
 const col_gt = [
@@ -19,14 +24,12 @@ const Footer = () => {
         <footer className="bg-gray-700 w-full text-white pt-5">
             <div className="grid grid-cols-4 m-0 px-10">
                 {/* Logo ? */}
-                
                 <div>
-
+                
                 </div>
 
-                {/* Giới thiệu */}
                 <div>
-                    <h3 className="text-lg font-semibold mb-2">Giới thiệu</h3>
+                    <h3 className="text-lg font-semibold mb-2">Địa chỉ</h3>
                     <ul className="list-none space-y-1">
                         {col_gt.map((item, index) => (
                             <li key={index}>{item}</li>
@@ -34,7 +37,6 @@ const Footer = () => {
                     </ul>
                 </div>
 
-                {/* Liên hệ */}
                 <div>
                     <h3 className="text-lg font-semibold mb-2">Liên hệ</h3>
                     <ul className="list-none space-y-1">
@@ -44,7 +46,6 @@ const Footer = () => {
                     </ul>
                 </div>
 
-                {/* Mạng xã hội */}
                 <div>
                     <h3 className="text-lg font-semibold mb-2">Mạng xã hội</h3>
                     <div className="flex gap-3">

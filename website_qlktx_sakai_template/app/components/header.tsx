@@ -131,10 +131,10 @@ export default function Header() {
                     <img src="/custom/logo.png" alt="Logo" className="h-20 mr-4" />
                     <div className="text-center">
                         <h1 className="text-3xl md:text-4xl font-bold text-red-600">
-                            KÝ TÚC XÁ ĐẠI HỌC SƯ PHẠM KỸ THUẬT HƯNG YÊN
+                            KÝ TÚC XÁ 
                         </h1>
                         <p className="text-lg md:text-2xl text-red-400">
-                            HUNG YEN UNIVERSITY OF TECHNOLOGY AND EDUCATION DORMITORY
+                            DORMITORY
                         </p>
                     </div>
                 </div>
@@ -155,19 +155,19 @@ export default function Header() {
                 className="bg-blue-600 border-none rounded-none text-white p-0 pl-8"
                 pt={{
                     action: {
-                        className: "text-white bg-blue-600 hover:bg-blue-500 transition-all",
+                        className: "text-white border-none bg-blue-600 hover:bg-blue-500 transition-all",
                     },
                     label: {
-                        className: "text-white p-1",
+                        className: "text-white p-1 border-none",
                     },
                     icon: {
-                        className: "text-white",
+                        className: "text-white border-none",
                     },
                     submenuIcon: {
-                        className: "text-white",
+                        className: "text-white border-none",
                     },
                     menu: {
-                        className: "p-0",
+                        className: "p-0 border-none",
                     }
                 }}
             />

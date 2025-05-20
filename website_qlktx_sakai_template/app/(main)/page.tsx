@@ -2,10 +2,12 @@
 
 import Image from "next/image"
 import Login from "./auth/login/page"
+import HomePage from "@components/TrangChuTemp"
 
-export default function HomePage() {
+export default function _HomePage() {
     return (
-        <Login />
+        // <Login />
+        <HomePage />
 
         // <>
         //     <div className="flex flex-col gap-5">
@@ -68,4 +70,4 @@ export default function HomePage() {
     )
 }
 
-// trang chủ trên có slide giới thiệu, số lượng phòng 
+// trang chủ trên có slide hình ảnh của ktx, số lượng phòng và học sinh đang ở, feedback tốt của sinh viên về ktx, một số hình ảnh về khuôn viên + phòng ốc, có link truy cập đến các thông báo, tin tức mới nhất, đăng ký phòng ở 

@@ -16,3 +16,6 @@ Giai đoạn 2 (ưu tiên trung bình):
 # bug 
     ql-phong : chi tiết phòng hiện tại chỉ thêm được sinh viên -> không thêm được nhân viên vào phòng
     ql-dang-ky-phong : xóa xong chưa reload
+
+# góp ý 
+    footer khóa với màn hình ?
