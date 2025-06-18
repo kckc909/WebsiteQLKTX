@@ -17,7 +17,7 @@ import { apiBaseUrl } from 'app/api/baseUrl';
 import { post_avatar, put_avatar } from 'app/api/dashboard/api_upload';
 import { useRouter } from 'next/navigation';
 import { Dropdown } from 'primereact/dropdown';
-import FeatureTitle from '@components/function_title';
+import FeatureTitle from '@components/FeatureTitle';
 
 const _empty: tb_sinh_vien = {
     id_tb_nguoi_dung: 0,

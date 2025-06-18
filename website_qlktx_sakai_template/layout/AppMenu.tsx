@@ -23,33 +23,16 @@ const AppMenu = () => {
                 { label: 'Quản lý phòng', icon: 'pi pi-home', to: '/dashboard/ql-phong' },
                 { label: 'Quản lý sinh viên', icon: 'pi pi-users', to: '/dashboard/ql-sinh-vien' },
                 { label: 'Quản lý nhân viên', icon: 'pi pi-id-card', to: '/dashboard/ql-nhan-vien' },
-                { label: 'Quản lý điện nước', icon: 'pi pi-bolt', to: '/dashboard/ql-dien-nuoc' },
                 { label: 'Quản lý đăng ký phòng', icon: 'pi pi-inbox', to: '/dashboard/ql-dang-ky-phong' },
-                { label: 'Quản lý hóa đơn', icon: 'pi pi-file', to: '/dashboard/ql-hoa-don', items: [
-                    { label: 'Hóa đơn điện nước', icon: 'pi pi-bolt', to: '/dashboard/ql-hoa-don-dien-nuoc' },
-                    { label: 'Hóa đơn phòng', icon: 'pi pi-credit-card', to: '/dashboard/ql-hoa-don-phong' }
-                ] },
+                { label: 'Hóa đơn điện nước', icon: 'pi pi-bolt', to: '/dashboard/ql-hoa-don-dien-nuoc' },
+                { label: 'Hóa đơn phòng', icon: 'pi pi-credit-card', to: '/dashboard/ql-hoa-don-phong' },
                 { label: 'Quản lý bài đăng', icon: 'pi pi-book', to: '/dashboard/ql-bai-dang' },
                 { label: 'Quản lý thông báo', icon: 'pi pi-bell', to: '/dashboard/ql-thong-bao' },
-                { label: 'Xử lý khiếu nại phản hồi', icon: 'pi pi-comments', to: '/dashboard/xu-ly-khph' },
+                { label: 'Xử lý khiếu nại phản hồi', icon: 'pi pi-comments', to: '/dashboard/xy-ly-knph' },
                 { label: 'Quản lý ra vào phòng', icon: 'pi pi-sign-in', to: '/dashboard/ql-ra-vao-phong' },
                 { label: 'Quản lý giá phòng', icon: 'pi pi-dollar', to: '/dashboard/ql-gia-phong' },
                 { label: 'Quản lý giá điện nước', icon: 'pi pi-money-bill', to: '/dashboard/ql-gia-dien-nuoc' },
                 { label: 'Thống kê báo cáo', icon: 'pi pi-chart-bar', to: '/dashboard/thong-ke' },
-            ]
-        },
-        {
-            label: 'Thông tin cá nhân',
-            items: [
-                { label: 'Thông tin tài khoản', icon: 'pi pi-user', to: '/dashboard/thong-tin-ca-nhan/thong-tin-tai-khoan' },
-                { label: 'Đổi mật khẩu', icon: 'pi pi-lock', to: '/dashboard/thong-tin-ca-nhan/doi-mat-khau' },
-                {
-                    label: 'Đăng xuất', icon: 'pi pi-home', command: () => {
-                        localStorage.removeItem('token');
-                        localStorage.removeItem('user_info');
-                        window.location.href = '/';
-                    }
-                }
             ]
         }
     ];

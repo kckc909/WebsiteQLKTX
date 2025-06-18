@@ -18,6 +18,9 @@ import route_tb_trong_phong from './routes/tb_trong_phong.route.js';
 import route_auth_login from './routes/auth.route.js';
 import route_upload from './routes/upload.js';
 import route_tb_dang_ky_phong from './routes/tb_dang_ky_phong.js';
+import route_tb_gia_dien from './routes/tb_gia_dien.js'
+import route_tb_gia_nuoc from './routes/tb_gia_nuoc.js'
+
 // Declare 
 dotenv.config();
 const app = express();
@@ -45,6 +48,8 @@ app.use('/tb_so_dien_nuoc', route_tb_so_dien_nuoc);
 app.use('/tb_trong_phong', route_tb_trong_phong);
 app.use('/auth/login', route_auth_login);
 app.use('/tb_dang_ky_phong', route_tb_dang_ky_phong);
+app.use('/tb_gia_dien', route_tb_gia_dien)
+app.use('/tb_gia_nuoc', route_tb_gia_nuoc)
 
 // Uploads
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));

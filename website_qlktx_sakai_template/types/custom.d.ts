@@ -22,12 +22,13 @@ export interface tb_gia_phong {
 
 export interface tb_hoa_don_dien_nuoc {
     id_tb_hoa_don_dien_nuoc: number;
-    id_tb_phong: number;
+    id_tb_so_dien_nuoc: number;
     thoi_gian: Date;
-    so_dien_tieu_thu: number;
-    so_nuoc_tieu_thu: number;
+    tien_dien: number;
+    tien_nuoc: number;
     thanh_tien: number;
-    trang_thai: any | undefined;
+    trang_thai: number; // = 0 hoặc = 1
+    ghi_chu: string;
 }
 
 export interface tb_hoa_don_phong {
@@ -86,6 +87,7 @@ export interface tb_phong {
     gioi_tinh_phong: string | null | undefined; // 0 nữ hoặc 1 nam
     day_nha: string | undefined;
     tang: number;
+    co_so: number
 }
 
 export interface tb_sinh_vien {
@@ -112,8 +114,10 @@ export interface tb_so_dien_nuoc {
     id_tb_so_dien_nuoc: number;
     id_tb_phong: number;
     thoi_gian: Date;
-    so_dien: number;
-    so_nuoc: number;
+    so_dien_cu: number;
+    so_dien_moi: number;
+    so_nuoc_cu: number;
+    so_nuoc_moi: number;
 }
 
 export interface tb_thong_bao {
@@ -147,5 +151,20 @@ export interface tb_dang_ky_phong {
     trang_thai: string,
     thoi_gian_dang_ky: Date | string,
     ghi_chu: string | null,
-    id_tb_nguoi_dung: number
+    id_tb_nguoi_dung: number,
+    id_tb_hoc_ki: number
+}
+
+export interface tb_gia_dien {
+    id_tb_gia_dien: number;
+    thoi_gian_ap_dung: Date;
+    gia: number;
+    trang_thai: number;
+}
+
+export interface tb_gia_nuoc {
+    id_tb_gia_nuoc: number;
+    thoi_gian_ap_dung: Date;
+    gia: number;
+    trang_thai: number;
 }

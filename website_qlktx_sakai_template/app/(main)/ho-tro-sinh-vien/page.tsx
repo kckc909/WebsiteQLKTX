@@ -1,6 +1,6 @@
-const HoTroSinhVienPage = () => {
+const PageHoTroSinhVienPage = () => {
 
 
 }
 
-export default HoTroSinhVienPage;
+export default PageHoTroSinhVienPage;

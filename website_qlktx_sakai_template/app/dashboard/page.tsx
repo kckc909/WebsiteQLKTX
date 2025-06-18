@@ -8,6 +8,8 @@ import Link from 'next/link';
 import { ChartData, ChartOptions } from 'chart.js';
 import { useRouter } from 'next/navigation';
 import { Card } from 'primereact/card';
+import { randomInt } from 'crypto';
+import FeatureTitle from '@components/FeatureTitle';
 
 const lineData: ChartData = {
     labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
@@ -67,10 +69,10 @@ const Dashboard = () => {
     const { layoutConfig } = useContext(LayoutContext);
     const router = useRouter();
 
-    const [tongSoSinhVien, setTongSoSinhVien] = useState(0);
-    const [soPhongTrong, setSoPhongTrong] = useState(0);
+    const [tongSoSinhVien, setTongSoSinhVien] = useState(342);
+    const [soPhongTrong, setSoPhongTrong] = useState(12);
     const [soDangKyChuaXuLy, setSoDangKyChuaXuLy] = useState(0);
-    const [soHoaDonChuaThanhToan, setSoHoaDonChuaThanhToan] = useState(0);
+    const [soHoaDonChuaThanhToan, setSoHoaDonChuaThanhToan] = useState(3);
 
     const chartData = {
         labels: ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6'],
@@ -103,16 +105,15 @@ const Dashboard = () => {
 
     return (
         <>
-            <Card className="p-4">
-                <div className="text-2xl font-semibold mb-4">Tổng quan hệ thống</div>
-
+            <Card className="">
+                <FeatureTitle title={'Tổng quan'} ></FeatureTitle>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
                     <Card className="hover:shadow-lg cursor-pointer" onClick={() => router.push('/dashboard/ql-sinh-vien')}>
                         <div className="flex items-center justify-between">
                             <span className="text-lg">Tổng số sinh viên</span>
                             <i className="pi pi-users text-2xl text-primary" />
                         </div>
-                        <div className="text-3xl font-bold mt-2">{tongSoSinhVien}</div>
+                        <div className="text-3xl font-bold mt-2 text-blue-500">{tongSoSinhVien}</div>
                     </Card>
 
                     <Card className="hover:shadow-lg cursor-pointer" onClick={() => router.push('/dashboard/ql-phong')}>
@@ -120,7 +121,7 @@ const Dashboard = () => {
                             <span className="text-lg">Phòng còn trống</span>
                             <i className="pi pi-home text-2xl text-green-500" />
                         </div>
-                        <div className="text-3xl font-bold mt-2">{soPhongTrong}</div>
+                        <div className="text-3xl font-bold mt-2 text-green-500">{soPhongTrong}</div>
                     </Card>
 
                     <Card className="hover:shadow-lg cursor-pointer" onClick={() => router.push('/dashboard/ql-dang-ky-phong')}>
@@ -128,7 +129,7 @@ const Dashboard = () => {
                             <span className="text-lg">Đăng ký chưa xử lý</span>
                             <i className="pi pi-inbox text-2xl text-orange-500" />
                         </div>
-                        <div className="text-3xl font-bold mt-2">{soDangKyChuaXuLy}</div>
+                        <div className="text-3xl font-bold mt-2 text-orange-500">{soDangKyChuaXuLy}</div>
                     </Card>
 
                     <Card className="hover:shadow-lg cursor-pointer" onClick={() => router.push('/dashboard/ql-hoa-don')}>
@@ -136,7 +137,7 @@ const Dashboard = () => {
                             <span className="text-lg">Hóa đơn chưa thanh toán</span>
                             <i className="pi pi-credit-card text-2xl text-red-500" />
                         </div>
-                        <div className="text-3xl font-bold mt-2">{soHoaDonChuaThanhToan}</div>
+                        <div className="text-3xl font-bold mt-2 text-red-500">{soHoaDonChuaThanhToan}</div>
                     </Card>
                 </div>
 

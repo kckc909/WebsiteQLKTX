@@ -21,9 +21,13 @@ export default function ChonPhong({ dsPhong, dsDKP, onChonPhong, sltPhong }: { d
 
     const dsLoc = dsPhong.filter((p: tb_phong) => {
         const tongNguoi = p.so_luong + dsDKP.filter(dkp => dkp.id_tb_phong === p.id_tb_phong).length;
-        if (loc.day_nha && p.day_nha !== loc.day_nha) return false;
+        if (loc.day_nha && p.day_nha !== loc.day_nha) return false; 
         if (loc.tang && p.tang !== loc.tang) return false;
-        if (loc.gioi_tinh_phong !== '' && p.gioi_tinh_phong !== loc.gioi_tinh_phong) return false;
+        if (
+            loc.gioi_tinh_phong != '' &&
+            p.gioi_tinh_phong != null &&
+            p.gioi_tinh_phong != loc.gioi_tinh_phong
+        ) return false;
         if (loc.kich_thuoc_toi_da && p.kich_thuoc_toi_da !== loc.kich_thuoc_toi_da) return false;
         if (!loc.hien_thi_phong_day && tongNguoi >= p.kich_thuoc_toi_da) return false;
         return true;
@@ -92,7 +96,7 @@ export default function ChonPhong({ dsPhong, dsDKP, onChonPhong, sltPhong }: { d
                     const soLuongDangKy = dsDangKy.length;
                     const tongNguoi = soLuongHienTai + soLuongDangKy;
 
-                    const bg = (phong.id_tb_phong === sltPhong)? 'bg-yellow-100' : 'bg-white' 
+                    const bg = (phong.id_tb_phong === sltPhong) ? 'bg-yellow-100' : 'bg-white'
 
                     return (
                         <div

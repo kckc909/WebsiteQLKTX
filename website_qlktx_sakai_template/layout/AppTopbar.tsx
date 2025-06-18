@@ -5,12 +5,33 @@ import { classNames } from 'primereact/utils';
 import React, { forwardRef, useContext, useImperativeHandle, useRef } from 'react';
 import { AppTopbarRef } from '../types/types';
 import { LayoutContext } from './context/layoutcontext';
+import { Menu } from 'primereact/menu';
 
 const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
     const { layoutConfig, layoutState, onMenuToggle, showProfileSidebar } = useContext(LayoutContext);
     const menubuttonRef = useRef(null);
     const topbarmenuRef = useRef(null);
     const topbarmenubuttonRef = useRef(null);
+    const profileMenuRef = useRef<Menu>(null);
+
+    const profileMenu = [
+        {
+            label: 'Thông tin cá nhân',
+            items: [
+                { label: 'Thông tin tài khoản', icon: 'pi pi-user', command: () => window.location.href = '/dashboard/thong-tin-ca-nhan/thong-tin-tai-khoan'},
+                { label: 'Đổi mật khẩu', icon: 'pi pi-lock', command: () => window.location.href = '/dashboard/thong-tin-ca-nhan/doi-mat-khau' },
+                { label: 'Trở về trang chủ', icon: 'pi pi-home', command: () => window.location.href = '/' },
+                {
+                    label: 'Đăng xuất', icon: 'pi pi-sign-out', command: () => {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user_info');
+                        window.location.href = '/';
+                    }
+                }
+                
+            ],
+        }
+    ];
 
     useImperativeHandle(ref, () => ({
         menubutton: menubuttonRef.current,
@@ -39,16 +60,19 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
                     <i className="pi pi-calendar"></i>
                     <span>Calendar</span>
                 </button>
-                <Link href="/">
-                    <button type="button" className="p-link layout-topbar-button">
-                        <i className="pi pi-cog"></i>
-                        <span>Settings</span>
-                    </button>
-                </Link>
                 <button type="button" className="p-link layout-topbar-button">
+                    <i className="pi pi-bell"></i>
+                    <span>Notifications</span>
+                </button>
+                <button
+                    type="button"
+                    className="p-link layout-topbar-button"
+                    onClick={(e) => profileMenuRef.current?.toggle(e)}
+                >
                     <i className="pi pi-user"></i>
                     <span>Profile</span>
                 </button>
+                <Menu model={profileMenu} popup ref={profileMenuRef} id="profile_menu_popup" className='min-w-[250px] p-2 text-lg'/>
             </div>
         </div>
     );

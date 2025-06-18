@@ -2,12 +2,15 @@
 
 import Image from "next/image"
 import Login from "./auth/login/page"
-import HomePage from "@components/TrangChuTemp"
+import HomePage from "./trang-chu"
 
 export default function _HomePage() {
     return (
+        <>
+            <HomePage />
+            
+        </>
         // <Login />
-        <HomePage />
 
         // <>
         //     <div className="flex flex-col gap-5">

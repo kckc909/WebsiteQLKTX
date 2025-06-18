@@ -6,12 +6,12 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Toolbar } from 'primereact/toolbar';
 import { Toast } from 'primereact/toast';
-import FeatureTitle from '@components/function_title';
+import FeatureTitle from '@components/FeatureTitle';
 import { tb_dang_ky_phong, tb_phong, tb_sinh_vien, tb_trong_phong } from '@custom';
 import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { api_tb_dang_ky_phong_add, api_tb_dang_ky_phong_deleteMany, api_tb_dang_ky_phong_getAll, api_tb_dang_ky_phong_getByTrangThai, api_tb_dang_ky_phong_update } from 'app/api/dashboard/api_tb_dang_ky_phong';
+import { api_tb_dang_ky_phong_add, api_tb_dang_ky_phong_delete, api_tb_dang_ky_phong_deleteMany, api_tb_dang_ky_phong_getAll, api_tb_dang_ky_phong_getByTrangThai, api_tb_dang_ky_phong_update } from 'app/api/dashboard/api_tb_dang_ky_phong';
 import ChonPhong from '@components/ChonPhong';
 import { api_tb_phong_getAll } from 'app/api/dashboard/api_tb_phong';
 import { api_tb_sinh_vien_add, api_tb_sinh_vien_CheckByMSV, api_tb_sinh_vien_search } from 'app/api/dashboard/api_tb_sinh_vien';
@@ -97,6 +97,10 @@ const QuanLyDangKyPhong = () => {
     }, [searchTerm]);
 
     // func
+    const toMysqlDate = (date: Date) => {
+        return date.toISOString().slice(0, 10); // 'YYYY-MM-DD'
+    };
+
     const getAll = async () => {
         const dataDSDKP = await api_tb_dang_ky_phong_getAll();
         setds_Dkp(dataDSDKP);
@@ -145,11 +149,13 @@ const QuanLyDangKyPhong = () => {
             newErrors.gioi_tinh = 'Vui lòng chọn giới tính'
         }
         // kiểm tra phòng
-        let p_ok = false;
-        const p = dsPhong.find(p => { p.id_tb_phong == data.id_tb_phong });
-        if (p) {
-            const tongNguoi = p.so_luong + ds_dkp.filter(dkp => dkp.id_tb_phong === p.id_tb_phong).length;
-            if (tongNguoi < p.kich_thuoc_toi_da) {
+        let p_ok = false
+        const _phong = dsPhong.find(p => p.id_tb_phong == data.id_tb_phong);
+
+        console.log("check : " + _phong)
+        if (_phong) {
+            const tongNguoi = _phong.so_luong + ds_dkp.filter(dkp => dkp.id_tb_phong === _phong.id_tb_phong).length;
+            if (tongNguoi < _phong.kich_thuoc_toi_da) {
                 p_ok = true
             }
         }
@@ -239,13 +245,20 @@ const QuanLyDangKyPhong = () => {
         }
     }
 
-    const handleUpdate = (updatedDangKyPhong: tb_dang_ky_phong) => {
-        // kiểm tra tồn tại -> kiểm tra nếu sinh viên đã đang ký 1 lần trong cùng 1 học kì thì -> cho lựa chọn giữ cũ hay thay mới hoặc không làm gì cả
-        // giữ cũ thì xóa đơn này giữ mới thì xóa đơn cũ
-
-        // cập nhật + duyệt
-        handleDuyet(updatedDangKyPhong);
-    }
+    const handleUpdate = async (updatedDangKyPhong: tb_dang_ky_phong) => {
+        try {
+            const res = await api_tb_dang_ky_phong_update(updatedDangKyPhong);
+            debugger
+            console.log("res", res);
+        } catch (err: any) {
+            toast.current?.show({
+                severity: "error",
+                summary: "Lỗi",
+                detail: err.message || "Có lỗi khi cập nhật đơn đăng ký phòng!",
+                life: 3000,
+            });
+        }
+    };
 
     const handleDeleteSelected = () => {
         const deleteIds = selectedRows.map(row => row.id_tb_dang_ky_phong)
@@ -273,60 +286,65 @@ const QuanLyDangKyPhong = () => {
     }
 
     const handleDuyet = async (dangKyPhong: tb_dang_ky_phong) => {
-        // Cập nhật trạng thái đơn
-        const updatedDangKyPhong: tb_dang_ky_phong = { ...dangKyPhong, trang_thai: 'da' };
+        try {
+            const updatedDangKyPhong: tb_dang_ky_phong = { ...dangKyPhong, trang_thai: 'da', thoi_gian_dang_ky: toMysqlDate(new Date(dangKyPhong.thoi_gian_dang_ky)) };
 
-        api_tb_dang_ky_phong_update(updatedDangKyPhong)
-            .then(async (res: any) => {
-                if (res) {
-                    // kiểm tra sinh viên đã tồn tại hay chưa -> tạo mới nếu chưa có
-                    await api_tb_sinh_vien_CheckByMSV(updatedDangKyPhong.ma_sinh_vien)
-                        .then(async (existedSV: Partial<tb_sinh_vien>) => {
-                            if (!(existedSV && existedSV.id_tb_nguoi_dung)) {
-                                const newSV: Partial<tb_sinh_vien> = {
-                                    gioi_tinh: updatedDangKyPhong.gioi_tinh,
-                                    ma_sinh_vien: updatedDangKyPhong.ma_sinh_vien,
-                                    ho_ten: updatedDangKyPhong.ho_ten,
-                                    email: updatedDangKyPhong.email,
-                                    sdt: updatedDangKyPhong.sdt,
-                                    ghi_chu: 'Thêm mới khi duyệt vào phòng'
-                                }
-                                await api_tb_sinh_vien_add(newSV);
-                            }
-                        })
-                        .catch((err: any) => {
-                            console.error(err);
-                            toast.current?.show({
-                                severity: 'error',
-                                summary: 'Lỗi',
-                                detail: 'Lỗi trong quá trình kiểm tra tồn tại sinh viên!',
-                                life: 3000,
-                            });
-                        })
-                    // thêm sinh viên vào phòng
-                    const tbPhong: tb_trong_phong = {
-                        id_tb_phong: updatedDangKyPhong.id_tb_phong,
-                        id_tb_nguoi_dung: updatedDangKyPhong.id_tb_nguoi_dung,
-                        ghi_chu: ''
-                    }
-                    api_tb_trong_phong_add(tbPhong)
-                        .then((restp: any) => {
+            // Kiểm tra sinh viên đã tồn tại chưa
+            let idNguoiDung = dangKyPhong.id_tb_nguoi_dung;
+            const existedSV = await api_tb_sinh_vien_CheckByMSV(dangKyPhong.ma_sinh_vien);
 
-                        })
-                        .catch((err: any) => {
-
-                        })
+            if (!(existedSV && existedSV.id_tb_nguoi_dung)) {
+                // Thêm mới sinh viên
+                const newSV: Partial<tb_sinh_vien> = {
+                    gioi_tinh: dangKyPhong.gioi_tinh,
+                    ma_sinh_vien: dangKyPhong.ma_sinh_vien,
+                    ho_ten: dangKyPhong.ho_ten,
+                    ngay_sinh: '2004-12-02',
+                    email: dangKyPhong.email,
+                    sdt: dangKyPhong.sdt,
+                    ghi_chu: 'Thêm mới khi duyệt vào phòng'
+                };
+                const addRes = await api_tb_sinh_vien_add(newSV);
+                if (addRes && addRes.id_tb_nguoi_dung) {
+                    idNguoiDung = addRes.id_tb_nguoi_dung;
+                } else {
+                    throw new Error("Thêm mới sinh viên thất bại!");
                 }
-            })
-            .catch((err: any) => {
-                console.error(err);
-                toast.current?.show({
-                    severity: 'error',
-                    summary: 'Lỗi',
-                    detail: 'Duyệt không thành công',
-                    life: 3000,
-                });
+            } else {
+                idNguoiDung = existedSV.id_tb_nguoi_dung;
+            }
+
+            // Thêm sinh viên vào phòng
+            const tbPhong: tb_trong_phong = {
+                id_tb_phong: dangKyPhong.id_tb_phong,
+                id_tb_nguoi_dung: idNguoiDung,
+                ghi_chu: ''
+            };
+            const addPhongRes = await api_tb_trong_phong_add(tbPhong);
+            if (!addPhongRes) throw new Error("Thêm sinh viên vào phòng thất bại!");
+
+            // Cập nhật trạng thái đơn
+            const res = await api_tb_dang_ky_phong_update(updatedDangKyPhong);
+            if (!res) throw new Error("Cập nhật trạng thái đơn thất bại!");
+
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Thành công',
+                detail: 'Đã duyệt đơn và thêm sinh viên vào phòng!',
+                life: 3000,
             });
+
+            await getAll();
+
+        } catch (err: any) {
+            console.error(err);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Lỗi',
+                detail: err.message || 'Duyệt không thành công',
+                life: 3000,
+            });
+        }
     };
 
     const headerDSDKP = (
@@ -350,7 +368,12 @@ const QuanLyDangKyPhong = () => {
     );
 
     const footerDKP = (<div className="flex justify-content-end gap-2">
-        <Button label="Show" icon="pi pi-times" onClick={() => console.log(currentDkp)} className="p-button-text" />
+        <Button label="Show" icon="pi pi-eye" onClick={() => {
+            console.log(dsPhong)
+            console.log(dsPhong.find(p => p.id_tb_phong == 2))
+            console.log(currentDkp)
+        }
+        } className="p-button-text" />
         <Button label="Hủy" icon="pi pi-times" onClick={() => setVisible(false)} className="p-button-text" />
         <Button label="Lưu" icon="pi pi-check" onClick={() => {
             // kiểm tra thông tin đầu vào
@@ -365,7 +388,7 @@ const QuanLyDangKyPhong = () => {
             }
 
             if (currentDkp.id_tb_dang_ky_phong || currentDkp.id_tb_dang_ky_phong != 0) {
-                handleUpdate(currentDkp as tb_dang_ky_phong);
+                handleUpdate(currentDkp as tb_dang_ky_phong);   
             }
             else {
                 handleCreate(currentDkp as tb_dang_ky_phong);
@@ -380,17 +403,44 @@ const QuanLyDangKyPhong = () => {
             })
         }} autoFocus />
     </div>)
+
     return (
         <div>
             <Toast ref={toast} />
             <FeatureTitle title="Quản lý đăng ký phòng" />
             <Toolbar className="mb-4" left={() => (
                 <>
-                    <Button label="Làm mới" icon="pi pi-refresh" onClick={lamMoi} className="mr-2" />
-                    <Button label="Thêm mới" icon="pi pi-plus" onClick={() => {
-                        openCreateDialog(newDKP);
-                    }} className="mr-2 bg-primary" />
-                    <Button label="Xóa đã chọn" icon="pi pi-trash" onClick={() => setDeleteDialogVisible(true)} severity="danger" className="mr-2" disabled={selectedRows.length === 0} />
+                    <Button
+                        label="Làm mới"
+                        icon="pi pi-refresh"
+                        onClick={lamMoi}
+                        className="mr-2"
+                    />
+                    <Button
+                        label="Thêm mới"
+                        icon="pi pi-plus"
+                        onClick={() => {
+                            openCreateDialog(newDKP);
+                        }}
+                        className="mr-2 bg-primary"
+                    />
+                    <Button
+                        label="Xóa đã chọn"
+                        icon="pi pi-trash"
+                        onClick={() => setDeleteDialogVisible(true)}
+                        severity="danger"
+                        className="mr-2"
+                        disabled={selectedRows.length === 0}
+                    />
+                    <Button
+                        label='Duyệt'
+                        icon="pi pi-check"
+                        onClick={() => {
+                            
+                        }}
+                        severity='success'
+                        className=''
+                    />
                 </>
             )} />
             <Dialog
@@ -534,6 +584,7 @@ const QuanLyDangKyPhong = () => {
                 </div>
             </Dialog>
 
+            {/* DataTable DSDKP */}
             <DataTable
                 value={filter}
                 selection={selectedRows}
@@ -562,17 +613,29 @@ const QuanLyDangKyPhong = () => {
                                     'Không xác định'
                     )}
                 />
+
                 <Column
                     body={(rowData) => (
-                        <Button
-                            label=""
-                            icon="pi pi-info"
-                            className="p-button-rounded p-button-primary mr-2"
-                            onClick={() => openCreateDialog(rowData)}
-                        />
+                        <>
+                            <Button
+                                tooltip='Thông tin'
+                                icon="pi pi-info"
+                                className="p-button-rounded p-button-primary mr-2"
+                                onClick={() => openCreateDialog(rowData)}
+                            />
+                            <Button
+                                tooltip='Duyệt'
+                                icon='pi pi-check'
+                                className="p-button-rounded p-button-success mr-2"
+                                onClick={() => {
+                                    handleDuyet(rowData);
+                                }}
+                            />
+                        </>
                     )}
                 />
             </DataTable>
+
             <Dialog visible={deleteDialogVisible} header="Xác nhận"
                 modal
                 footer={<Button label="Xóa" icon="pi pi-check" onClick={handleDeleteSelected} />}

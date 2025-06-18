@@ -26,6 +26,7 @@ export async function api_tb_sinh_vien_update(sinh_vien: tb_sinh_vien) {
 }
 
 export async function api_tb_sinh_vien_delete(id: number) {
+    console.log(id + "||" + `${apiUrl}/${id}`)
     await axios.delete(`${apiUrl}/${id}`);
 }
 

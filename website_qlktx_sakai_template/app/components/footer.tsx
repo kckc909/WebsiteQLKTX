@@ -21,49 +21,65 @@ const col_mxh = [
 
 const Footer = () => {
     return (
-        <footer className="bg-gray-700 w-full text-white pt-5">
-            <div className="grid grid-cols-4 m-0 px-10">
-                {/* Logo ? */}
-                <div>
-                
-                </div>
+        <>
+            <footer className="w-full bg-gray-900 text-white py-10">
+                <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-4">
+                    {/* Cột 1: Logo & Social */}
+                    <div className="flex flex-col items-center md:items-start">
+                        <img src="/custom/logo.png" alt="Logo" className="w-20 h-20 mb-4" />
+                        <div className="flex gap-4 mb-4">
+                            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-500">
+                                <i className="pi pi-facebook text-2xl"></i>
+                            </a>
+                            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="hover:text-red-500">
+                                <i className="pi pi-youtube text-2xl"></i>
+                            </a>
+                            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-sky-400">
+                                <i className="pi pi-twitter text-2xl"></i>
+                            </a>
+                        </div>
+                        <div className="text-sm">
+                            <b>Liên hệ</b><br />
+                            Địa chỉ: ĐT379, Dân Tiến, Khoái Châu, Hưng Yên, Việt Nam<br />
+                            Điện thoại: 0221.3689.888<br />
+                            Email: kckc253261@gmail.com
+                        </div>
+                    </div>
 
-                <div>
-                    <h3 className="text-lg font-semibold mb-2">Địa chỉ</h3>
-                    <ul className="list-none space-y-1">
-                        {col_gt.map((item, index) => (
-                            <li key={index}>{item}</li>
-                        ))}
-                    </ul>
-                </div>
+                    {/* Cột 2: Giới thiệu */}
+                    <div>
+                        <h3 className="text-lg font-bold uppercase mb-4">Giới thiệu</h3>
+                        <ul className="space-y-2 text-sm">
+                            <li><a href="/" className="hover:underline">Về Trường Đại học SPKT Hưng Yên</a></li>
+                            <li><a href="/" className="hover:underline">Tổ chức đoàn thể</a></li>
+                            <li><a href="/" className="hover:underline">Công đoàn</a></li>
+                            <li><a href="/" className="hover:underline">Chi đoàn</a></li>
+                            <li><a href="/" className="hover:underline">Hội cựu chiến binh</a></li>
+                        </ul>
+                    </div>
 
-                <div>
-                    <h3 className="text-lg font-semibold mb-2">Liên hệ</h3>
-                    <ul className="list-none space-y-1">
-                        {col_lh.map((item, index) => (
-                            <li key={index}>{item.label}</li>
-                        ))}
-                    </ul>
-                </div>
+                    <div>
+                        <h3 className="text-lg font-bold uppercase mb-4">Đơn vị trực thuộc</h3>
+                        <ul className="space-y-2 text-sm">
+                            <li><a href="/" className="hover:underline">Phòng Quản trị - Thiết bị</a></li>
+                            <li><a href="/" className="hover:underline">Phòng Chăm sóc sức khỏe</a></li>
+                            <li><a href="/" className="hover:underline">Phòng An ninh trật tự</a></li>
+                        </ul>
+                    </div>
 
-                <div>
-                    <h3 className="text-lg font-semibold mb-2">Mạng xã hội</h3>
-                    <div className="flex gap-3">
-                        {col_mxh.map((item, index) => (
-                            <Link href={item.link} target="_blank">
-                                <i key={index} className={`${item.icon} text-2xl`} title={item.label}>
-                                </i>
-                            </Link>
-                        ))}
+                    <div>
+                        <h3 className="text-lg font-bold uppercase mb-4">Ban quản lý KTX</h3>
+                        <ul className="space-y-2 text-sm">
+                            <li><a href="/" className="hover:underline">Ký túc xá CS1</a></li>
+                            <li><a href="/" className="hover:underline">Ký túc xá CS2</a></li>
+                        </ul>
                     </div>
                 </div>
+            </footer>
+            <div className="text-center bg-gray-800 py-2 text-sm text-gray-500">
+                © 2025 - Chu Đức Minh
             </div>
-            <div className="">
-                <p className="text-sm text-center text-xs font-light my-2">
-                    &copy; 2025 - Chu đức Minh
-                </p>
-            </div>
-        </footer>
+        </>
     );
 };
 

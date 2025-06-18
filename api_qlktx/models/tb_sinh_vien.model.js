@@ -1,6 +1,5 @@
 
 import db from '../common/db.js'
-import tb_nguoi_dung from './tb_nguoi_dung.model.js'
 
 class Model_tb_sinh_vien {
     constructor(tb_name) {
@@ -60,14 +59,14 @@ class Model_tb_sinh_vien {
             connection.release();
         }
     }
-    
+
     update(obj, callback) {
         const { id_tb_nguoi_dung, ...updateFields } = obj;
         db.query(`update ?? set ? where id_tb_nguoi_dung = ? `, [this.tb_name, updateFields, id_tb_nguoi_dung], callback)
     }
 
     delete(id, callback) {
-        db.query('delete from ?? where id_tb_nguoi_dung = ? ', [this.tb_name, id], callback);
+        db.query('delete from ?? where id_tb_nguoi_dung = ? ', ['tb_nguoi_dung', id], callback);
     }
 
     // custom 

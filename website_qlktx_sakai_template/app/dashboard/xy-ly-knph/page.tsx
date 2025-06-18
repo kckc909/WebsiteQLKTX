@@ -1,2 +1,7 @@
-const XyLyKhieuNaiPhanHoiPage = () => {}
+const XyLyKhieuNaiPhanHoiPage = () => {
+    return (
+        <>
+        </>
+    )
+}
 export default XyLyKhieuNaiPhanHoiPage

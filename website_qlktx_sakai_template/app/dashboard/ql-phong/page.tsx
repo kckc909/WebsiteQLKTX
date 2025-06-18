@@ -12,7 +12,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { tb_phong } from '../../../types/custom';
 import { api_tb_phong_add, api_tb_phong_delete, api_tb_phong_getAll, api_tb_phong_update } from '../../api/dashboard/api_tb_phong';
 import { useRouter } from 'next/navigation';
-import FeatureTitle from '@components/function_title';
+import FeatureTitle from '@components/FeatureTitle';
+import { Dropdown } from 'primereact/dropdown';
 
 const emptyPhong: tb_phong = {
     id_tb_phong: 0,
@@ -23,8 +24,14 @@ const emptyPhong: tb_phong = {
     so_luong: 0,
     day_nha: '',
     gioi_tinh_phong: null,
-    tang: 0
+    tang: 0,
+    co_so: 0
 };
+
+const DSCoSo = [
+    { label: 'Cơ sở Khoái Châu', value: 1 },
+    { label: 'Cơ sở Mỹ Hào', value: 2 },
+]
 
 const CrudPhong = () => {
     const router = useRouter();
@@ -147,22 +154,35 @@ const CrudPhong = () => {
                             />
                         </DataTable>
 
-                        <Dialog visible={dialogState.phong} header="Thông tin phòng" modal footer={<Button label="Lưu" icon="pi pi-check" onClick={savePhong} />} onHide={() => closeDialog('phong')}>
-                            <div className="field">
+                        <Dialog
+                            visible={dialogState.phong}
+                            header="Thông tin phòng"
+                            modal
+                            footer={<Button label="Lưu" icon="pi pi-check" onClick={savePhong} />}
+                            onHide={() => closeDialog('phong')}
+                        >
+                            <div className="gap-2 grid grid-cols-2 p-2 pt-4">
                                 <label htmlFor="ten_phong">Tên phòng</label>
                                 <InputText id="ten_phong" value={phong.ten_phong} onChange={(e) => setPhong({ ...phong, ten_phong: e.target.value })} />
-                            </div>
-                            <div className="field">
                                 <label htmlFor="mat_khau">Mật khẩu</label>
                                 <InputText id="mat_khau" value={phong.mat_khau} onChange={(e) => setPhong({ ...phong, mat_khau: e.target.value })} />
-                            </div>
-                            <div className="field">
                                 <label htmlFor="so_luong">Số lượng</label>
                                 <InputNumber id="so_luong" value={phong.so_luong} onValueChange={(e) => setPhong({ ...phong, so_luong: e.value || 0 })} />
-                            </div>
-                            <div className="field">
                                 <label htmlFor="kich_thuoc_toi_da">Số lượng tối đa</label>
                                 <InputNumber id="kich_thuoc_toi_da" value={phong.kich_thuoc_toi_da} onValueChange={(e) => setPhong({ ...phong, kich_thuoc_toi_da: e.value || 0 })} />
+                                <label htmlFor="co_so">Cơ sở</label>
+                                <Dropdown
+                                    value={phong.co_so}
+                                    options={DSCoSo}
+                                    onChange={(e) => setPhong({ ...phong, co_so: e.value })}
+                                    optionLabel="label"
+                                    optionValue="value"
+                                />
+
+                                <label htmlFor="day_nha">Dãy nhà</label>
+                                <InputText id="day_nha" value={phong.day_nha.toString()} onChange={(e) => setPhong({ ...phong, day_nha: e.target.value })} />
+                                <label htmlFor="tang">Tầng</label>
+                                <InputNumber id="tang" value={phong.tang} onValueChange={(e) => setPhong({ ...phong, tang: e.value || 0 })} />
                             </div>
                         </Dialog>
 

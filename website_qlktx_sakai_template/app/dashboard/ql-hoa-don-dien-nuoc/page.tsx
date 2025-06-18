@@ -1,141 +1,252 @@
-// ✅ 3. Quản lý hóa đơn điện nước
-// 🗂 Bảng cột gợi ý:
-// 🧾 Mã hóa đơn
-// 🏠 Mã phòng
-// 🔢 Điện tiêu thụ (kWh)
-// 🔢 Nước tiêu thụ (m³)
-// 💸 Tiền điện
-// 💸 Tiền nước
-// 📅 Kỳ (Tháng/Năm)
-// 💳 Trạng thái (Đã thu / Chưa thu)
-// ⚙️ Thao tác (Sửa, Thu tiền, In hóa đơn)
-// 🔥 Chức năng chính
-// 🔄 Sinh hóa đơn điện nước tự động khi nhập chỉ số
-// 💳 Xác nhận thu tiền
-// 🖨️ In hóa đơn
-// 🔍 Lọc theo phòng, tháng, trạng thái
+// lấy giá điện nước từ bảng giá điện nước 
+// 
 
 'use client';
 
-import { InputText } from "primereact/inputtext";
 import { useEffect, useState, useRef } from 'react';
+import { Card } from "primereact/card";
+import { Dropdown } from 'primereact/dropdown';
+import { Button } from 'primereact/button';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { Dropdown } from 'primereact/dropdown';
-import { Card } from 'primereact/card';
+import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
-import { Button } from 'primereact/button';
-import { tb_hoa_don_dien_nuoc } from "@custom";
-import FeatureTitle from "@components/function_title";
+import FeatureTitle from "@components/FeatureTitle";
 import { Toolbar } from "primereact/toolbar";
+import { Banknote, Droplets, Zap } from 'lucide-react';
+// Giả sử bạn đã có các API này:
+import { api_tb_so_dien_nuoc_getAll } from "app/api/dashboard/api_tb_so_dien_nuoc";
+import { api_tb_hoa_don_dien_nuoc_getAll } from "app/api/dashboard/api_tb_hoa_don_dien_nuoc";
+import { tb_hoa_don_dien_nuoc, tb_so_dien_nuoc } from "@custom";
+import C_ThemChiSoMoi from './C_ThemChiSoMoi';
 
 const QlHoaDonDienNuoc = () => {
-    // state 
-    const toast = useRef<Toast>(null);
-    const trangThaiOptions = [
-        { label: 'Chưa thanh toán', value: 0 },
-        { label: 'Đã thanh toán', value: 1 },
+    // State cho filter
+    const [selectedMonth, setSelectedMonth] = useState<{ name: string, code: string } | null>(null);
+    const months = [
+        { name: 'Tháng 1/2025', code: '01-2025' },
+        { name: 'Tháng 2/2025', code: '02-2025' },
+        { name: 'Tháng 3/2025', code: '03-2025' },
     ];
-    const [tongHoaDonThang, setTongHoaDonThang] = useState(0);
-    const [daThanhToan, setDaThanhToan] = useState(0);
-    const [chuaThanhToan, setChuaThanhToan] = useState(0);
+    const [sltState, setSltState] = useState<{ name: string, code: string } | null>(null);
+    const states = [
+        { name: 'Chưa lập', code: '-1' },
+        { name: 'Chưa thu', code: '0' },
+        { name: 'Đã thu', code: '1' },
+    ];
     const [globalFilter, setGlobalFilter] = useState('');
-    const [hoaDons, setHoaDons] = useState<tb_hoa_don_dien_nuoc[]>([]);
-    const [filteredHoaDons, setFilteredHoaDons] = useState<tb_hoa_don_dien_nuoc[]>([]);
-    const [selectedTrangThai, setSelectedTrangThai] = useState<number | null>(null);
 
+    // State dữ liệu
+    const [meterData, setMeterData] = useState<any[]>([]);
+    const [hoaDons, setHoaDons] = useState<any[]>([]);
+    const [filteredHoaDons, setFilteredHoaDons] = useState<any[]>([]);
+    const [tongDienTieuThu, setTongDienTieuThu] = useState(0);
+    const [tongNuocTieuThu, setTongNuocTieuThu] = useState(0);
+    const [giaTienDien, setGiaTienDien] = useState(3000);
+    const [giaTienNuoc, setGiaTienNuoc] = useState(3000);
+    const [htThemChiSoMoi, setHTthemChiSoMoi] = useState(false);
 
-    // effect 
-    useEffect(() => {
+    const toast = useRef<Toast>(null);
 
-    }, []);
+    const fetchData = async () => {
+        // Lọc theo tháng nếu có
+        const monthCode = selectedMonth?.code;
+        let soDienNuocRes = await api_tb_so_dien_nuoc_getAll();
+        let hoaDonRes = await api_tb_hoa_don_dien_nuoc_getAll();
 
-    useEffect(() => {
-        if (selectedTrangThai !== null) {
-            setFilteredHoaDons(hoaDons.filter(hd => hd.trang_thai === selectedTrangThai));
-        } else {
-            setFilteredHoaDons(hoaDons);
-        }
-    }, [selectedTrangThai, hoaDons]);
-    // functions
-    const trangThaiTemplate = (rowData: tb_hoa_don_dien_nuoc) => {
-        return (
-            <span className={`px-2 py-1 text-sm rounded ${rowData.trang_thai === 1 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                }`}>
-                {rowData.trang_thai === 1 ? 'Đã thanh toán' : 'Chưa thanh toán'}
-            </span>
-        );
+        // Tính toán tổng điện, nước tiêu thụ
+        let tongDien = 0, tongNuoc = 0;
+        const merged = soDienNuocRes.map((item: any) => {
+            const hd = hoaDonRes.find((h: any) => h.ma_phong === item.ma_phong && h.thang === item.thang && h.nam === item.nam);
+            const dienTieuThu = item.so_dien_moi - item.so_dien_cu;
+            const nuocTieuThu = item.so_nuoc_moi - item.so_nuoc_cu;
+            tongDien += dienTieuThu;
+            tongNuoc += nuocTieuThu;
+            return {
+                ...item,
+                dienTieuThu,
+                nuocTieuThu,
+                tienDien: dienTieuThu * giaTienDien,
+                tienNuoc: nuocTieuThu * giaTienNuoc,
+                trangThai: hd ? (hd.trang_thai === 1 ? 'Đã thu' : 'Chưa thu') : 'Chưa thu',
+                hoaDonId: hd?.id,
+            };
+        });
+        setMeterData(merged);
+        setHoaDons(hoaDonRes);
+        setTongDienTieuThu(tongDien);
+        setTongNuocTieuThu(tongNuoc);
     };
+    // Lấy dữ liệu từ API
+    useEffect(() => {
+        fetchData();
+    }, [selectedMonth, giaTienDien, giaTienNuoc]);
 
-    // componnent 
+    // Lọc dữ liệu theo trạng thái và search
+    useEffect(() => {
+        let data = [...meterData];
+        if (sltState) {
+            data = data.filter(d => d.trangThai === (sltState.code === '1' ? 'Đã thu' : 'Chưa thu'));
+        }
+        if (globalFilter) {
+            data = data.filter(d => d.ma_phong?.toLowerCase().includes(globalFilter.toLowerCase()));
+        }
+        setFilteredHoaDons(data);
+    }, [meterData, sltState, globalFilter]);
+
+    // Action template
+    const actionTemplate = (rowData: any) => (
+        <div className="flex gap-2">
+            <Button icon="pi pi-pencil" rounded severity="info" tooltip="Thông tin hóa đơn" onClick={() => {
+                toast.current?.show({ severity: 'info', summary: 'Sửa', detail: rowData.ma_phong })
+                // chuyển sang trang chi tiết hóa đơn điện nước  
+                // hoặc
+                // mở popup thông tin hóa đơn
+            }} />
+            <Button icon="pi pi-check" rounded severity="success" tooltip="Xác nhận thu tiền" onClick={() => {
+                toast.current?.show({ severity: 'success', summary: 'Thu tiền', detail: rowData.ma_phong })
+                // Cập nhật trạng thái thu tiền + reload dữ liệu
+            }} />
+        </div>
+    );
+
+    // Header DataTable
     const header = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <h2 className="m-0 text-2xl">Danh sách phòng ở</h2>
-            <div className="flex flex-wrap gap-2 align-items-center justify-between">
+            <h2 className="m-0 text-xl">Danh sách số điện số nước theo tháng</h2>
+            <div>
                 <Dropdown
-                    value={selectedTrangThai}
-                    onChange={(e) => setSelectedTrangThai(e.value)}
-                    options={trangThaiOptions}
-                    optionLabel="label"
-                    placeholder="Lọc theo trạng thái"
-                    className="w-64"
-                    showClear
+                    value={sltState}
+                    onChange={(e) => setSltState(e.value)}
+                    options={states}
+                    optionLabel="name"
+                    placeholder="Trạng thái"
+                    className="w-50"
                 />
             </div>
-            <span className="block mt-2 md:mt-0 p-input-icon-left">
-                <i className="pi pi-search" />
-                <InputText type="search" onInput={(e) => setGlobalFilter(e.currentTarget.value)} placeholder="Search..." />
-            </span>
-        </div>
-    )
-    const actionTemplate = (rowData: tb_hoa_don_dien_nuoc) => {
-        return (
-            <div className="flex gap-2">
-                <Button icon="pi pi-pencil" rounded text severity="info" />
-                <Button icon="pi pi-trash" rounded text severity="danger" />
+            <div>
+                <Dropdown value={selectedMonth} onChange={(e) => setSelectedMonth(e.value)} options={months} optionLabel="name" placeholder="Chọn tháng" className="w-40" />
             </div>
-        );
-    };
+            <div className="flex gap-3">
+                <span className="block mt-2 md:mt-0 p-input-icon-left">
+                    <i className="pi pi-search" />
+                    <InputText type="search" onInput={(e) => setGlobalFilter(e.currentTarget.value)} placeholder="Tìm mã phòng..." />
+                </span>
+            </div>
+        </div>
+    );
+
     return (
-        <div className="p-4">
+        <div className="w-full p-3 flex flex-col gap-4">
             <Toast ref={toast} />
-            <FeatureTitle title="Quản lý hóa đơn điện nước" />
-            {/* Thống kê */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <Card title="Tổng hóa đơn tháng">
-                    <p className="text-2xl font-bold">{tongHoaDonThang}</p>
+            <FeatureTitle title="Quản lý hóa đơn & chỉ số điện nước" />
+
+            {/* Thêm chỉ số mới */}
+            <>
+                <C_ThemChiSoMoi
+                    visible={htThemChiSoMoi}
+                    onClose={() => setHTthemChiSoMoi(false)}
+                    onSuccess={fetchData}
+                />
+            </>
+
+            {/* Thống kê tổng quan */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+                <Card className="hover:shadow-lg cursor-pointer">
+                    <div className="flex items-center justify-between">
+                        <span className="text-lg">Tổng điện tiêu thụ (kWh)</span>
+                        <Zap color='#ecf000' />
+                    </div>
+                    <div className="text-3xl font-bold mt-2">{tongDienTieuThu}</div>
                 </Card>
-                <Card title="Đã thanh toán">
-                    <p className="text-2xl font-bold text-green-600">{daThanhToan}</p>
+                <Card className="hover:shadow-lg cursor-pointer">
+                    <div className="flex items-center justify-between">
+                        <span className="text-lg">Tổng nước tiêu thụ (m³)</span>
+                        <Droplets color='blue' />
+                    </div>
+                    <div className="text-3xl font-bold mt-2">{tongNuocTieuThu}</div>
                 </Card>
-                <Card title="Chưa thanh toán">
-                    <p className="text-2xl font-bold text-red-600">{chuaThanhToan}</p>
+                <Card className="hover:shadow-lg cursor-pointer">
+                    <div className="flex items-center justify-between">
+                        <span className="text-lg">Giá điện hiện tại (đ/kWh)</span>
+                        <Banknote color='#ecf000' />
+                    </div>
+                    <div className="text-3xl font-bold mt-2">{giaTienDien}</div>
+                </Card>
+                <Card className="hover:shadow-lg cursor-pointer">
+                    <div className="flex items-center justify-between">
+                        <span className="text-lg">Giá nước hiện tại (đ/m³)</span>
+                        <Banknote color='blue' />
+                    </div>
+                    <div className="text-3xl font-bold mt-2">{giaTienNuoc}</div>
                 </Card>
             </div>
 
-            {/* Bảng */}
+            {/* Chức năng */}
+
+            {/* Bảng chi tiết */}
             <Card>
                 <Toolbar className="mb-4" left={() => (
-                    <>
-                        <div>
-                            <Button label='Làm mới' icon='pi pi-refresh' onClick={() => { }} className='mr-2' />
-                            <Button label="Thêm mới" icon="pi pi-plus" onClick={() => { }} className='mr-2 bg-green-400 border-0' />
-                        </div>
-                    </>
+                    <div className="flex gap-2">
+                        <Button
+                            label="Thêm chỉ số mới"
+                            icon="pi pi-plus"
+                            severity="info"
+                            onClick={() => {
+                                setHTthemChiSoMoi(true);
+                            }}
+                        />
+                        <Button
+                            label="Import Excel"
+                            icon="pi pi-file-excel"
+                            severity="success"
+                            onClick={() => {
+
+                            }}
+                        />
+                        <Button
+                            label="Nhập chỉ số tự động"
+                            icon="pi pi-copy"
+                            severity="warning"
+                            onClick={() => {
+
+                            }}
+                        />
+                    </div>
                 )} />
-                <DataTable value={filteredHoaDons} paginator rows={10} rowsPerPageOptions={[5, 10, 20]} header={header}>
-                    <Column field="ma_hoa_don" header="Mã hóa đơn"></Column>
-                    <Column field="ten_phong" header="Phòng"></Column>
-                    <Column body={(row) => `Kỳ ${row.hoc_ki} - ${row.nam_hoc}`} header="Kỳ"></Column>
-                    <Column field="chi_so_dien" header="Điện (kWh)"></Column>
-                    <Column field="chi_so_nuoc" header="Nước (m³)"></Column>
-                    <Column field="so_tien" header="Số tiền" body={(row) => row.so_tien.toLocaleString() + ' đ'}></Column>
-                    <Column body={trangThaiTemplate} header="Trạng thái"></Column>
-                    <Column field="ngay_tao" header="Ngày tạo"></Column>
-                    <Column body={actionTemplate} header="Thao tác"></Column>
+                <DataTable
+                    value={meterData}
+                    paginator
+                    rows={10}
+                    showGridlines
+                    responsiveLayout="scroll"
+                    globalFilter={globalFilter}
+                    header={header}
+                >
+                    <Column field="ma_phong" header="🏠 Mã phòng" />
+                    <Column field="so_dien_cu" header="🔢 Điện cũ" />
+                    <Column field="so_dien_moi" header="🔢 Điện mới" />
+                    <Column field="dienTieuThu" header="⚡ Tiêu thụ điện" />
+                    <Column field="so_nuoc_cu" header="🔢 Nước cũ" />
+                    <Column field="so_nuoc_moi" header="🔢 Nước mới" />
+                    <Column field="nuocTieuThu" header="💧 Tiêu thụ nước" />
+                    <Column field="tienDien" header="💸 Tiền điện" body={row => row.tienDien.toLocaleString() + ' đ'} />
+                    <Column field="tienNuoc" header="💸 Tiền nước" body={row => row.tienNuoc.toLocaleString() + ' đ'} />
+                    <Column
+                        body={(row) => {
+                            const date = new Date(row.thoi_gian);
+                            const month = date.getMonth() + 1; // getMonth() trả 0–11
+                            const year = date.getFullYear();
+                            return `Tháng ${month}/${year}`;
+                        }}
+                        header="📅 Tháng"
+                    />
+                    <Column field="trangThai" header="✅ Trạng thái" />
+                    <Column header="⚙️ Thao tác" body={actionTemplate} />
                 </DataTable>
             </Card>
         </div>
     );
-}
+};
+
 export default QlHoaDonDienNuoc;

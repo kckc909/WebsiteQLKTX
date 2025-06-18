@@ -8,7 +8,7 @@ interface AppLayoutProps {
 }
 
 export const metadata: Metadata = {
-    title: 'Ký túc xá UTEHY',
+    title: 'Ký túc xá ',
     description: 'UTEHY DOM',
     robots: { index: false, follow: false },
     viewport: { initialScale: 1, width: 'device-width' },
@@ -21,7 +21,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
     return (
         <>
             <Header></Header>
-            {children}
+            <div className='min-h-screen'>
+                {children}
+            </div>
             <Footer></Footer>
         </>
     )
